@@ -4,6 +4,9 @@ These are some Kubernetes manifests to help you stand up an ELK (Elasticsearch, 
 
 More documentation coming soon...
 
+
+... Yes I know I'm missing Logstash, Filebeat, etc.  Will be adding those in soon. Stay tuned!
+
 ## Usage
 Apply all the things - `kubectl apply -f ./` 
 
