@@ -1,0 +1,65 @@
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: elk-grafana
+  labels:
+    component: elk-grafana
+spec:
+  selector:
+    component: elk-grafana
+  ports: 
+  - name: grafana
+    port: 3000
+    targetPort: 3000
+---
+# Ingress
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: elk-grafana
+  #namespace: kube-system
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.frontend.rule.type: PathPrefixStrip
+spec:
+  rules:
+  - host: 
+    http:
+      paths:
+      - path: /elk/grafana
+        backend:
+          serviceName: elk-grafana
+          servicePort: grafana
+---
+# Deployment 
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: elk-grafana
+  labels:
+    component: elk-grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: elk-grafana
+  template:
+    metadata:
+      labels:
+        component: elk-grafana
+    spec:
+      containers:
+      - name: elk-grafana
+        image: grafana/grafana:5.1.0
+        env:
+        - name: GF_SERVER_ROOT_URL
+          value: /elk/grafana 
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        ports:
+        - containerPort: 3000
+          name: http
