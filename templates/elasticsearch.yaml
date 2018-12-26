@@ -13,7 +13,6 @@ spec:
   ports:
   - name: es-data
     port: 9200
-#type: LoadBalancer
 ---
 # Traefik support
 apiVersion: extensions/v1beta1
@@ -29,7 +28,7 @@ spec:
   - host: 
     http:
       paths:
-      - path: /elk/elasticsearch
+      - path: {{ es_ingress_endpoint }} 
         backend:
           serviceName: elk-elasticsearch
           servicePort: 9200
@@ -60,8 +59,8 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: elk-es-master
-        image: docker.elastic.co/elasticsearch/elasticsearch:6.5.3
+      - name: elk-es-master-{{ es_version | regex_replace('\.', '-') }}
+        image: docker.elastic.co/elasticsearch/elasticsearch:{{es_version}}
         env:
         - name: NAMESPACE
           valueFrom:
@@ -136,8 +135,8 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: es-master
-        image: docker.elastic.co/elasticsearch/elasticsearch:6.5.3
+      - name: es-master-{{ es_version | regex_replace('\.', '-') }}
+        image: docker.elastic.co/elasticsearch/elasticsearch:{{elastic_version}}
         env:
         - name: NAMESPACE
           valueFrom:
@@ -179,9 +178,10 @@ spec:
           initialDelaySeconds: 20
           periodSeconds: 10
         volumeMounts:
-        - name: storage
-          mountPath: /data
+          - name: es-data-hostpath-pv
+            mountPath: /usr/share/elasticsearch/data 
       volumes:
-          - emptyDir:
-              medium: ""
-            name: "storage"
+          - name: es-data-hostpath-pv
+            hostPath:
+              path: /data/elk-es-data 
+              type: DirectoryOrCreate

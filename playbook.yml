@@ -1,0 +1,15 @@
+- hosts:
+  - localhost 
+  gather_facts: false
+  vars_files:
+    - ansible-vars.yml 
+  tasks:
+    - name: Create the templates 
+      template: 
+        src: "{{ item }}.yaml"
+        dest: "manifests/{{item}}.yaml"
+      with_items:
+        - elasticsearch 
+        - kibana 
+        - grafana 
+        - cerebro 

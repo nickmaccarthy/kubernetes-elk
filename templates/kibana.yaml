@@ -31,7 +31,7 @@ spec:
   - host: 
     http:
       paths:
-      - path: /elk/kibana
+      - path: {{ kibana_ingress_endpoint }} 
         backend:
           serviceName: elk-kibana
           servicePort: 5601
@@ -57,15 +57,15 @@ spec:
         role: kibana 
     spec:
       containers:
-      - name: elk-kibana
-        image: docker.elastic.co/kibana/kibana:6.5.3
+      - name: elk-kibana-{{ kibana_version | regex_replace('\.', '-') }}
+        image: docker.elastic.co/kibana/kibana:{{ kibana_version }}
         env:
         - name: ELASTICSEARCH_URL
-          value: http://elk-elasticsearch:9200 
+          value: {{ es_url }}  
         - name: SERVER_NAME
           value: kibana 
         - name: SERVER_BASEPATH
-          value: /elk/kibana 
+          value: {{ kibana_ingress_endpoint }} 
         resources:
           limits:
             cpu: 1000m
@@ -75,4 +75,12 @@ spec:
         - containerPort: 5601
           name: kibana
           protocol: TCP 
+      #   volumeMounts:
+      #     - name: kibana-hostpath-pv 
+      #       mountPath: /usr/share/kibana
+      # volumes:
+      #   - name: kibana-hostpath-pv 
+      #     hostPath:
+      #       path: /data/elk-kibana 
+      #       type: DirectoryOrCreate 
 

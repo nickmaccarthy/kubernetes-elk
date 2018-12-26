@@ -1,0 +1,22 @@
+# The global version for our elastic.co distro 
+elastic_version: 6.5.4
+
+# Versions for each part of the stack 
+# You override each one if you wish, otherwise they get the main elastic_version 
+kibana_version: "{{ elastic_version }}"
+es_version: "{{ elastic_version }}"
+logstash_version: "{{ elastic_version }}"
+filebeat_version: "{{ elastic_version }}"
+metricbeat_version: "{{ elastic_version }}"
+
+grafana_version: 5.1.0
+
+cerebro_version: 0.8.1
+
+
+es_ingress_endpoint: /elk/elasticsearch 
+kibana_ingress_endpoint: /elk/kibana 
+grafana_ingress_endpoint: /elk/grafana 
+cerebro_ingress_endpoint: /elk/cerebro 
+
+es_url: http://elk-elasticsearch:9200 

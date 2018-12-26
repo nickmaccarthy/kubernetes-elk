@@ -1,0 +1,70 @@
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: elk-cerebro
+  labels:
+    component: elk-cerebro 
+spec:
+  selector:
+    component: elk-cerebro
+  ports: 
+  - name: cerebro
+    port: 9000
+    targetPort: 9000
+---
+# Ingress
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: elk-cerebro 
+  #namespace: kube-system
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.frontend.rule.type: PathPrefixStrip
+spec:
+  rules:
+  - host: 
+    http:
+      paths:
+      - path: {{ cerebro_ingress_endpoint }} 
+        backend:
+          serviceName: elk-cerebro
+          servicePort: cerebro
+---
+# Deployment 
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: elk-cerebro
+  labels:
+    component: elk-cerebro
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: elk-cerebro
+  template:
+    metadata:
+      labels:
+        component: elk-cerebro
+    spec:
+      containers:
+      - name: elk-cerebro-{{ cerebro_version | regex_replace('\.', '-') }}        
+        image: lmenezes/cerebro:{{ cerebro_version }} 
+        env:
+        - name: ELASTICSEARCH_URL
+          value: {{ es_url }} 
+        - name: ES_1_URI
+          value: {{ es_url }} 
+        - name: ES_1_NAME
+          value: elk-elasticsearch
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        ports:
+          - containerPort: 9000
+            name: http
+
